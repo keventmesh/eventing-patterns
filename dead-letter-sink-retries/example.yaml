@@ -19,12 +19,17 @@ spec:
   delivery:
     deadLetterSink:
       ref:
-        apiVersion: v1
-        kind: Service
-        name: event-display
+        apiVersion: eventing.knative.dev/v1
+        kind: Broker
+        name: dead-letter-sink-broker
     backoffDelay: PT1S
     backoffPolicy: linear
     retry: 5
+---
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  name: dead-letter-sink-broker
 ---
 apiVersion: eventing.knative.dev/v1
 kind: Trigger
@@ -34,6 +39,18 @@ spec:
   broker: with-dead-letter-sink
   subscriber:
     uri: http://fail.default.svc.cluster.local
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: event-display
+spec:
+  broker: dead-letter-sink-broker
+  subscriber:
+    ref:
+      apiVersion: v1
+      kind: Service
+      name: event-display
 ---
 apiVersion: v1
 kind: Service
