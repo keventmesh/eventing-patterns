@@ -1,0 +1,10 @@
+specVersion: 0.35.0
+name: event-tranformation-function
+runtime: go
+registry: quay.io/kevent-mesh/event-tranformation-function
+image: quay.io/kevent-mesh/event-tranformation-function/event-tranformation-function:latest
+imageDigest: sha256:ac26b8a796d2876f2660ec43447d6d64fbb30fc4757e7236fed63dad4b8f388c
+created: 2024-02-28T11:56:02.164321363+01:00
+invoke: cloudevent
+build:
+  builder: pack
