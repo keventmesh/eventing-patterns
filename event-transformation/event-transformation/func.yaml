@@ -1,0 +1,7 @@
+specVersion: 0.36.0
+name: event-transformation
+runtime: go
+created: 2024-04-09T11:24:14.110332009+02:00
+invoke: cloudevent
+build:
+  builder: s2i
