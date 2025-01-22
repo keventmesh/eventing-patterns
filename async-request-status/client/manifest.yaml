@@ -1,0 +1,65 @@
+---
+# Namespace for the broker
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: async-request-status
+---
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  name: broker
+  namespace: async-request-status
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: client
+  namespace: async-request-status
+  labels:
+    app: client
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+      - name: client
+        image: quay.io/pierdipi/async-request-status-client:latest
+        imagePullPolicy: Always
+        env:
+        - name: STATUS_ENDPOINT
+          value: "http://status-service"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+            - ALL
+      restartPolicy: OnFailure
+---
+apiVersion: sources.knative.dev/v1
+kind: SinkBinding
+metadata:
+  name: client-to-broker-binding
+  namespace: async-request-status
+spec:
+  subject:
+    apiVersion: batch/v1
+    kind: Job
+    selector:
+      matchLabels:
+        app: client
+  sink:
+    ref:
+      apiVersion: eventing.knative.dev/v1
+      kind: Broker
+      name: broker
